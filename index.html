@@ -1,0 +1,1216 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><title>Order SISLAND · Demo — Tacos El Buen Sazón</title><meta name="description" content="Demo de Order SISLAND: menú digital con pedido desde la mesa, pantalla de cocina y caja en tiempo real."></head><body>
+<style>
+/* Layout: single-column mobile menu — sticky category rail up top, scrolling dish list,
+   sticky cart bar pinned to the bottom that expands into a drawer before checkout via WhatsApp */
+:root{
+  --bg:#FBF6EE;
+  --surface:#FFFFFF;
+  --ink:#241B14;
+  --ink-soft:#73695D;
+  --line:#E7DDCC;
+  --accent:#C1442A;
+  --accent-ink:#FFF7EE;
+  --gold:#B8862E;
+  --ok:#3E7A4F;
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#1B140D;
+    --surface:#241B13;
+    --ink:#F4ECDF;
+    --ink-soft:#B9AC98;
+    --line:#3A2E20;
+    --accent:#E2663F;
+    --accent-ink:#1B140D;
+    --gold:#D9A94C;
+    --ok:#6FBF85;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#1B140D;
+  --surface:#241B13;
+  --ink:#F4ECDF;
+  --ink-soft:#B9AC98;
+  --line:#3A2E20;
+  --accent:#E2663F;
+  --accent-ink:#1B140D;
+  --gold:#D9A94C;
+  --ok:#6FBF85;
+  color-scheme: dark;
+}
+
+*{box-sizing:border-box;}
+body{
+  background:var(--bg);
+  color:var(--ink);
+  font-family:'Source Sans 3','Segoe UI',sans-serif;
+  padding-inline:0;
+  min-height:100%;
+}
+.font-display{font-family:'Fraunces','Georgia',serif;}
+h1,h2,h3{font-family:'Fraunces','Georgia',serif; text-wrap:balance; margin:0;}
+
+.wrap{max-width:460px;margin:0 auto;position:relative;padding-bottom:96px;}
+
+/* Header */
+.hero{
+  padding:84px 18px 16px;
+  background:
+    linear-gradient(180deg, rgba(10,7,4,.15), var(--bg) 92%),
+    url('images/hero-restaurante.jpg') center 38% / cover no-repeat;
+  border-bottom:1px solid var(--line);
+}
+.table-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--surface);border:1px solid var(--line);
+  border-radius:999px;padding:5px 12px 5px 10px;
+  font-size:12.5px;font-weight:600;color:var(--ink-soft);
+  letter-spacing:.02em;
+}
+.table-chip b{color:var(--accent);font-weight:700;}
+.brand-row{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;margin-top:12px;}
+.brand-name{font-size:26px;font-weight:600;line-height:1.1;}
+.brand-tag{font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+.mark{
+  width:46px;height:46px;border-radius:12px;flex-shrink:0;
+  background:var(--accent);color:var(--accent-ink);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Fraunces',serif;font-weight:700;font-size:18px;
+}
+
+/* Category rail */
+.rail{
+  position:sticky;top:env(safe-area-inset-top,0px);
+  z-index:5;background:var(--bg);
+  display:flex;gap:8px;padding:12px 18px;overflow-x:auto;
+  border-bottom:1px solid var(--line);
+  scrollbar-width:none;
+}
+.rail::-webkit-scrollbar{display:none;}
+.cat-btn{
+  flex:0 0 auto;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink-soft);font-weight:600;font-size:13px;
+  padding:8px 14px;border-radius:999px;cursor:pointer;
+  font-family:inherit;transition:background .15s, color .15s, border-color .15s;
+}
+.cat-btn.active{background:var(--accent);border-color:var(--accent);color:var(--accent-ink);}
+
+/* Sections */
+.section{padding:22px 18px 4px;}
+.section-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px;}
+.section-head .count{font-size:12px;color:var(--ink-soft);}
+.section-title{font-size:20px;font-weight:600;}
+
+.dish{
+  display:flex;gap:12px;align-items:flex-start;
+  padding:14px 0;border-bottom:1px solid var(--line);
+}
+.dish:last-child{border-bottom:none;}
+.dish-photo{
+  width:72px;height:72px;border-radius:10px;flex-shrink:0;object-fit:cover;
+  background:var(--line);
+}
+.dish-info{flex:1;min-width:0;}
+.dish-name{font-size:15.5px;font-weight:700;line-height:1.25;}
+.dish-desc{font-size:12.5px;color:var(--ink-soft);margin-top:3px;line-height:1.4;}
+.dish-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:8px;}
+.dish-price{font-family:'Fraunces',serif;font-weight:600;font-size:15px;color:var(--accent);}
+.dish-custom-link{
+  background:none;border:none;color:var(--accent);font-family:inherit;font-size:11.5px;font-weight:700;
+  padding:0;margin-top:5px;cursor:pointer;text-decoration:underline;
+}
+
+.qty-control{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;overflow:hidden;}
+.qty-btn{
+  width:28px;height:28px;border:none;background:transparent;color:var(--ink);
+  font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+}
+.qty-btn:active{background:var(--line);}
+.qty-val{min-width:20px;text-align:center;font-size:13.5px;font-weight:700;}
+.add-btn{
+  width:28px;height:28px;border:none;border-radius:8px;background:var(--accent);color:var(--accent-ink);
+  font-size:16px;font-weight:700;cursor:pointer;font-family:inherit;
+  display:flex;align-items:center;justify-content:center;
+}
+.add-btn:active{opacity:.8;}
+
+/* Cart bar */
+.cart-bar{
+  position:fixed;left:0;right:0;bottom:0;
+  max-width:460px;margin:0 auto;
+  padding:12px 16px calc(14px + env(safe-area-inset-bottom,0px));
+  background:var(--ink);color:var(--bg);
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border-radius:16px 16px 0 0;
+  box-shadow:0 -8px 24px rgba(0,0,0,.18);
+  cursor:pointer; border:none; width:100%; font-family:inherit;
+  transition:transform .2s ease;
+}
+.cart-bar[hidden]{display:none;}
+.cart-left{display:flex;align-items:center;gap:10px;text-align:left;}
+.cart-badge{
+  background:var(--accent);color:var(--accent-ink);
+  width:24px;height:24px;border-radius:50%;
+  font-size:12.5px;font-weight:700;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.cart-label{font-size:12px;color:color-mix(in srgb, var(--bg) 60%, transparent);}
+.cart-total{font-family:'Fraunces',serif;font-weight:600;font-size:16px;}
+.cart-cta{font-size:13.5px;font-weight:700;display:flex;align-items:center;gap:6px;}
+
+/* Drawer */
+.scrim{
+  position:fixed;inset:0;background:rgba(10,7,4,.5);z-index:20;
+  opacity:0;pointer-events:none;transition:opacity .2s ease;
+}
+.scrim.open{opacity:1;pointer-events:auto;}
+.drawer{
+  position:fixed;left:0;right:0;bottom:0;z-index:21;
+  max-width:460px;margin:0 auto;
+  background:var(--bg);border-radius:18px 18px 0 0;
+  max-height:82vh;display:flex;flex-direction:column;
+  transform:translateY(100%);transition:transform .25s ease;
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+.drawer.open{transform:translateY(0);}
+.drawer-head{
+  padding:16px 18px 12px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.drawer-head h2{font-size:18px;}
+.close-btn{
+  width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:var(--surface);
+  color:var(--ink-soft);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+.drawer-body{flex:1;overflow-y:auto;padding:4px 18px;}
+.cart-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--line);}
+.cart-row-name{flex:1;min-width:0;font-size:14px;font-weight:600;}
+.cart-row-sub{font-size:11.5px;color:var(--ink-soft);margin-top:2px;}
+.cart-row-price{font-family:'Fraunces',serif;font-weight:600;font-size:13.5px;color:var(--accent);white-space:nowrap;}
+.cart-row-note{font-size:11px;color:var(--gold);margin-top:2px;}
+.empty-cart{padding:40px 10px;text-align:center;color:var(--ink-soft);font-size:13.5px;}
+
+.note-field{
+  margin:12px 0 16px;padding:12px;background:var(--surface);border:1px solid var(--line);border-radius:10px;
+}
+.note-field label{font-size:12px;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+.note-field textarea{
+  width:100%;border:none;background:transparent;color:var(--ink);font-family:inherit;font-size:13.5px;resize:none;outline:none;
+}
+
+.drawer-foot{padding:14px 18px 18px;border-top:1px solid var(--line);background:var(--bg);}
+.total-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px;}
+.total-row .label{font-size:13px;color:var(--ink-soft);}
+.total-row .value{font-family:'Fraunces',serif;font-size:22px;font-weight:600;}
+.send-btn{
+  width:100%;border:none;border-radius:11px;padding:15px;
+  background:#2FAF5B;color:#fff;font-weight:700;font-size:14.5px;
+  display:flex;align-items:center;justify-content:center;gap:8px;cursor:pointer;font-family:inherit;
+}
+.send-btn:active{opacity:.85;}
+.send-sub{text-align:center;font-size:11px;color:var(--ink-soft);margin-top:9px;}
+
+.toast{
+  position:fixed;left:50%;bottom:110px;transform:translateX(-50%) translateY(10px);
+  background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:999px;
+  font-size:12.5px;font-weight:600;z-index:30;opacity:0;transition:opacity .2s ease, transform .2s ease;
+  pointer-events:none; white-space:nowrap; max-width:90%;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+.copy-row{
+  display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);
+  border-radius:9px;padding:9px 12px;margin-top:4px;
+}
+.copy-row span{font-size:13px;font-weight:600;flex:1;}
+.copy-row button{
+  border:none;background:var(--accent);color:var(--accent-ink);font-size:11.5px;font-weight:700;
+  padding:6px 10px;border-radius:7px;cursor:pointer;font-family:inherit;
+}
+
+/* Onboarding (mesa + mesero) */
+.onboard-scrim{
+  position:fixed;inset:0;background:rgba(10,7,4,.6);z-index:40;
+  display:flex;align-items:flex-end;justify-content:center;
+}
+.onboard-card{
+  width:100%;max-width:460px;background:var(--bg);border-radius:18px 18px 0 0;
+  padding:22px 20px calc(22px + env(safe-area-inset-bottom,0px));
+}
+.onboard-card h2{font-size:19px;margin-bottom:5px;}
+.onboard-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:18px;line-height:1.4;}
+.field{margin-bottom:14px;}
+.field label{font-size:12px;font-weight:700;color:var(--ink-soft);display:block;margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em;}
+.field input, .field select, .field textarea{
+  width:100%;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-family:inherit;font-size:15px;padding:12px 13px;border-radius:9px;outline:none;resize:none;
+}
+.field input:focus, .field select:focus, .field textarea:focus{border-color:var(--accent);}
+.detail-photo{width:100%;height:160px;border-radius:12px;object-fit:cover;background:var(--line);}
+.detail-chips{display:flex;flex-wrap:wrap;gap:8px;margin:-6px 0 16px;}
+.detail-chip{
+  border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);
+  font-family:inherit;font-size:12px;font-weight:600;padding:6px 12px;border-radius:999px;cursor:pointer;
+}
+.detail-chip:active{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);}
+.onboard-go{
+  width:100%;border:none;border-radius:11px;padding:14px;margin-top:4px;
+  background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:14.5px;cursor:pointer;font-family:inherit;
+}
+.onboard-err{font-size:12px;color:var(--accent);margin:-8px 0 12px;display:none;}
+.change-link{
+  background:none;border:none;color:inherit;text-decoration:underline;
+  font-family:inherit;font-size:12.5px;font-weight:600;cursor:pointer;padding:0;margin-left:8px;
+}
+
+/* Confirmación / seguimiento de pedido */
+.sent-wrap{padding:18px 4px 10px;text-align:center;}
+.sent-check{
+  width:54px;height:54px;border-radius:50%;background:var(--ok);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:26px;margin:0 auto 14px;
+}
+.sent-folio{font-size:13px;color:var(--ink-soft);margin-top:4px;margin-bottom:22px;}
+.track{display:flex;flex-direction:column;gap:0;text-align:left;margin:0 auto;max-width:280px;}
+.track-row{display:flex;align-items:center;gap:12px;padding:8px 0;opacity:.4;}
+.track-row.done{opacity:1;}
+.track-dot{
+  width:24px;height:24px;border-radius:50%;flex-shrink:0;
+  background:var(--line);color:var(--bg);
+  display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;
+}
+.track-row.done .track-dot{background:var(--ok);}
+.track-text{font-size:13.5px;font-weight:600;}
+.sent-total{font-size:13px;color:var(--ink-soft);margin-top:20px;}
+
+/* Pantalla de cocina (operador) */
+.k-header{
+  display:flex;align-items:center;justify-content:space-between;gap:14px;
+  padding:18px 22px;background:var(--surface);border-bottom:1px solid var(--line);
+}
+.k-title{font-size:19px;font-weight:600;}
+.k-sub{font-size:12px;color:var(--ink-soft);margin-top:2px;}
+.k-live{font-size:12.5px;font-weight:700;color:var(--ink-soft);white-space:nowrap;}
+.k-board{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;
+  padding:18px 22px 40px;align-items:start;
+}
+@media (max-width:760px){ .k-board{grid-template-columns:1fr;} }
+.k-col{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;min-width:0;}
+.k-col-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px 16px;border-bottom:1px solid var(--line);
+  font-weight:700;font-size:13.5px;letter-spacing:.02em;
+}
+.k-count{
+  background:var(--bg);border:1px solid var(--line);border-radius:999px;
+  padding:1px 9px;font-size:12px;color:var(--ink-soft);
+}
+.k-col-body{padding:12px;display:flex;flex-direction:column;gap:12px;min-height:60px;}
+.k-empty{text-align:center;color:var(--ink-soft);font-size:12.5px;padding:18px 0;}
+.k-card{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:12px 13px;}
+.k-card-top{display:flex;align-items:center;justify-content:space-between;}
+.k-mesa{font-family:'Fraunces',serif;font-weight:600;font-size:15px;}
+.k-time{font-size:11.5px;color:var(--ink-soft);}
+.k-mesero{font-size:11.5px;color:var(--ink-soft);margin-top:2px;margin-bottom:8px;}
+.k-items{display:flex;flex-direction:column;gap:3px;margin-bottom:6px;}
+.k-item{display:flex;justify-content:space-between;font-size:12.5px;gap:8px;align-items:flex-start;}
+.k-item span:last-child{color:var(--ink-soft);white-space:nowrap;}
+.k-item-note{font-size:11px;font-weight:700;color:var(--gold);margin-top:1px;}
+.k-nota{font-size:12px;color:var(--gold);background:color-mix(in srgb, var(--gold) 14%, transparent);padding:6px 8px;border-radius:7px;margin-bottom:8px;}
+.k-bottom{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;}
+.k-total{font-family:'Fraunces',serif;font-weight:600;font-size:14px;color:var(--accent);}
+.k-btn{
+  border:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:12px;
+  padding:7px 11px;border-radius:8px;cursor:pointer;font-family:inherit;white-space:nowrap;
+}
+.k-lock-btn{
+  width:34px;height:34px;border-radius:9px;border:1px solid var(--line);background:var(--bg);
+  font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+}
+
+/* Bloqueo de cocina por PIN */
+.k-lock-wrap{min-height:80vh;display:flex;align-items:center;justify-content:center;padding:40px 20px;}
+.k-lock-card{width:100%;max-width:320px;text-align:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:32px 26px;}
+.k-lock-icon{font-size:30px;margin-bottom:10px;}
+.k-lock-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:20px;}
+.k-pin-input{
+  width:100%;text-align:center;letter-spacing:10px;font-size:22px;font-weight:700;
+  border:1px solid var(--line);background:var(--bg);color:var(--ink);
+  border-radius:10px;padding:12px;margin-bottom:12px;font-family:inherit;outline:none;
+}
+.k-pin-input:focus{border-color:var(--accent);}
+
+/* Pantalla de caja */
+.caja-wrap{padding:18px 22px 50px;max-width:720px;margin:0 auto;}
+.caja-search-row{display:flex;gap:10px;margin-bottom:18px;}
+.caja-input{
+  flex:1;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-family:inherit;font-size:14px;padding:11px 13px;border-radius:9px;outline:none;
+}
+.caja-input:focus{border-color:var(--accent);}
+.caja-btn{
+  border:none;background:var(--accent);color:var(--accent-ink);font-weight:700;font-size:13.5px;
+  padding:0 20px;border-radius:9px;cursor:pointer;font-family:inherit;
+}
+.caja-section-label{font-size:12px;font-weight:700;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;}
+.caja-tables{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px;}
+.caja-chip{
+  display:flex;flex-direction:column;align-items:flex-start;gap:3px;
+  border:1px solid var(--line);background:var(--surface);border-radius:11px;
+  padding:10px 16px;cursor:pointer;font-family:inherit;
+}
+.caja-chip.active{border-color:var(--accent);background:color-mix(in srgb, var(--accent) 10%, var(--surface));}
+.caja-chip-mesa{font-weight:700;font-size:13.5px;}
+.caja-chip-total{font-family:'Fraunces',serif;color:var(--accent);font-weight:600;font-size:13px;}
+.caja-detail{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px;max-width:420px;}
+.caja-detail-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.caja-order{background:var(--bg);border:1px solid var(--line);border-radius:11px;padding:12px 13px;margin-bottom:12px;}
+.caja-grand{display:flex;justify-content:space-between;align-items:baseline;padding:12px 0;border-top:1px solid var(--line);margin-bottom:14px;}
+.caja-grand span:first-child{font-size:13px;color:var(--ink-soft);}
+.caja-grand-total{font-family:'Fraunces',serif;font-size:22px;font-weight:600;color:var(--accent);}
+.caja-confirm{background:color-mix(in srgb, var(--accent) 10%, var(--surface));border:1px solid var(--accent);border-radius:11px;padding:14px;}
+.caja-confirm-text{font-size:13.5px;line-height:1.4;margin-bottom:12px;}
+.caja-confirm-row{display:flex;gap:10px;}
+.caja-confirm-row .send-btn{width:auto;flex:1;padding:12px;}
+.caja-btn-ghost{
+  flex:1;border:1px solid var(--line);background:var(--surface);color:var(--ink);
+  font-weight:700;font-size:13.5px;padding:12px;border-radius:11px;cursor:pointer;font-family:inherit;
+}
+</style>
+
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,600;0,700;1,500&family=Source+Sans+3:wght@400;500;600;700&display=swap">
+
+<div id="app"></div>
+
+<script src="demo-db.js"></script>
+<script>
+function ClienteApp(){
+
+  var MENU = [
+    { cat:"Entradas", items:[
+      {id:1, name:"Guacamole con totopos", desc:"Aguacate fresco machacado al momento, cebolla, cilantro y chile serrano", price:85, emoji:"🥑", photo:"images/01-guacamole.jpg",
+        chips:["Sin cebolla","Sin cilantro","Sin chile serrano","Extra limón","Para llevar"]},
+      {id:2, name:"Queso fundido", desc:"Con chorizo artesanal, acompañado de tortillas de harina", price:95, emoji:"🧀", photo:"images/02-queso-fundido.jpg",
+        chips:["Sin chorizo","Extra tortillas","Para llevar"]},
+      {id:3, name:"Esquites", desc:"Elote desgranado, mayonesa, queso cotija y chile piquín", price:55, emoji:"🌽", photo:"images/03-esquites.jpg",
+        chips:["Sin mayonesa","Sin queso","Sin picante","Para llevar"]}
+    ]},
+    { cat:"Platos fuertes", items:[
+      {id:4, name:"Tacos al pastor", desc:"Orden de 4 · Marinados en adobo, piña asada, cebolla y cilantro", price:95, emoji:"🌮", photo:"images/04-tacos-pastor.jpg",
+        chips:["Sin cebolla","Sin cilantro","Sin piña","Extra salsa","Para llevar"]},
+      {id:5, name:"Tacos de bistec", desc:"Orden de 4 · Res a la plancha, salsa verde y guacamole", price:110, emoji:"🌮", photo:"images/05-tacos-bistec.jpg",
+        chips:["Sin cebolla","Sin cilantro","Sin salsa verde","Extra guacamole","Término medio","Para llevar"]},
+      {id:6, name:"Tacos de pescado estilo Baja", desc:"Orden de 4 · Empanizados, col morada, pico de gallo y crema chipotle", price:120, emoji:"🐟", photo:"images/06-tacos-pescado.jpg",
+        chips:["Sin col morada","Sin crema chipotle","Sin pico de gallo","Extra limón","Para llevar"]},
+      {id:7, name:"Quesabirria", desc:"Orden de 3 · Con consomé para remojar", price:130, emoji:"🫕", photo:"images/07-quesabirria.jpg",
+        chips:["Sin cebolla","Sin cilantro","Extra consomé","Para llevar"]},
+      {id:8, name:"Gringa de pastor", desc:"Tortilla de harina, queso gratinado y pastor", price:70, emoji:"🫓", photo:"images/08-gringa.jpg",
+        chips:["Sin cebolla","Sin piña","Extra queso","Para llevar"]}
+    ]},
+    { cat:"Bebidas", items:[
+      {id:9, name:"Agua de horchata", desc:"De la jarra del día", price:35, emoji:"🥤", photo:"images/09-horchata.jpg",
+        chips:["Sin azúcar","Poco hielo","Sin hielo","Para llevar"]},
+      {id:10, name:"Agua de jamaica", desc:"De la jarra del día", price:35, emoji:"🥤", photo:"images/10-jamaica.jpg",
+        chips:["Sin azúcar","Poco hielo","Sin hielo","Para llevar"]},
+      {id:11, name:"Michelada", desc:"Cerveza clara, limón, salsas y sal de gusano", price:75, emoji:"🍺", photo:"images/11-michelada.jpg",
+        chips:["Sin sal de gusano","Sin chile","Extra limón","Para llevar"]},
+      {id:12, name:"Refresco", desc:"Línea Coca-Cola, 355 ml", price:30, emoji:"🥫", photo:"images/12-refresco.jpg",
+        chips:["Sin hielo","Para llevar"]}
+    ]},
+    { cat:"Postres", items:[
+      {id:13, name:"Churros con cajeta", desc:"Espolvoreados con canela, relleno de cajeta", price:60, emoji:"🥮", photo:"images/13-churros.jpg",
+        chips:["Sin canela","Extra cajeta","Para llevar"]},
+      {id:14, name:"Flan napolitano", desc:"Receta de la casa", price:55, emoji:"🍮", photo:"images/14-flan.jpg",
+        chips:["Sin caramelo","Para llevar"]}
+    ]}
+  ];
+
+  var RESTAURANT = "Tacos El Buen Sazón";
+  var WAITERS = ["Jorge", "Lupita", "Said", "Fernanda", "No lo sé"];
+  var STATUS_LABEL = { nuevo:"Recibido en cocina", preparando:"Se está preparando", listo:"¡Listo! Tu mesero lo lleva", entregado:"Entregado" };
+
+  var db = null;
+  var dbReady = false;
+  if (window.claude && window.claude.use){
+    window.claude.use("db").then(function(d){ db = d; dbReady = true; render(); }).catch(function(){ dbReady = true; render(); });
+  } else {
+    dbReady = true;
+  }
+
+  var orderState = "cart"; // cart | sending | sent | error
+  var liveOrder = null; // {folio, status, total, ...}
+  var unsubOrder = null;
+
+  function readSession(key){
+    try{ return sessionStorage.getItem(key); }catch(e){ return null; }
+  }
+  function writeSession(key, val){
+    try{ sessionStorage.setItem(key, val); }catch(e){}
+  }
+
+  var cart = []; // cada línea: {id, qty, note}
+  var drawerOpen = false;
+  var activeCat = MENU[0].cat;
+  var tableNum = readSession("sl_mesa") || "";
+  var waiterName = readSession("sl_mesero") || "";
+  var onboardOpen = !tableNum; // un solo QR para todo el restaurante: la mesa se captura al abrir
+  var onboardErr = "";
+
+  var detailItemId = null; // id del platillo abierto en el modal de detalle/personalización
+  var DEFAULT_CHIPS = ["Para llevar"]; // respaldo por si un platillo no trae sus propias opciones
+
+  function submitOnboarding(){
+    var tEl = document.getElementById("ob-mesa");
+    var wEl = document.getElementById("ob-mesero");
+    var t = tEl ? tEl.value.trim() : "";
+    var w = wEl ? wEl.value : "";
+    if (!t){
+      onboardErr = "Escribe el número de tu mesa para continuar.";
+      render();
+      return;
+    }
+    tableNum = t;
+    waiterName = w || "No lo sé";
+    writeSession("sl_mesa", tableNum);
+    writeSession("sl_mesero", waiterName);
+    onboardOpen = false;
+    onboardErr = "";
+    render();
+  }
+
+  function changeTable(){
+    onboardOpen = true;
+    onboardErr = "";
+    render();
+  }
+
+  function fmt(n){ return "$" + n.toLocaleString("es-MX"); }
+
+  function findItem(id){
+    for (var s=0; s<MENU.length; s++){
+      for (var i=0; i<MENU[s].items.length; i++){
+        if (MENU[s].items[i].id === id) return MENU[s].items[i];
+      }
+    }
+    return null;
+  }
+
+  function cartCount(){
+    var n=0; cart.forEach(function(l){ n += l.qty; });
+    return n;
+  }
+  function cartTotal(){
+    var t=0; cart.forEach(function(l){ var it=findItem(l.id); if(it) t += it.price*l.qty; });
+    return t;
+  }
+
+  // La línea "simple" (sin nota) de un platillo — la que controla el +/- rápido en la lista.
+  function plainLineIndex(id){
+    for (var i=0;i<cart.length;i++){ if (cart[i].id===id && !cart[i].note) return i; }
+    return -1;
+  }
+  function getPlainQty(id){
+    var i = plainLineIndex(id);
+    return i===-1 ? 0 : cart[i].qty;
+  }
+  function setPlainQty(id, qty){
+    var i = plainLineIndex(id);
+    if (qty <= 0){
+      if (i!==-1) cart.splice(i,1);
+    } else if (i!==-1){
+      cart[i].qty = qty;
+    } else {
+      cart.push({ id: id, qty: qty, note: "" });
+    }
+    render();
+  }
+
+  function setLineQty(idx, qty){
+    if (qty <= 0) cart.splice(idx,1); else cart[idx].qty = qty;
+    render();
+  }
+
+  function addItem(id){
+    setPlainQty(id, getPlainQty(id) + 1);
+    showToast(findItem(id).name + " agregado");
+  }
+
+  function openDetail(id){
+    detailItemId = id;
+    render();
+  }
+  function closeDetail(){
+    detailItemId = null;
+    render();
+  }
+  function insertChip(text){
+    var el = document.getElementById("detail-note");
+    if (!el) return;
+    var cur = el.value.trim();
+    el.value = cur ? (cur + ", " + text) : text;
+  }
+  function addFromDetail(id){
+    var el = document.getElementById("detail-note");
+    var note = el ? el.value.trim() : "";
+    if (!note){
+      setPlainQty(id, getPlainQty(id) + 1);
+    } else {
+      cart.push({ id: id, qty: 1, note: note });
+    }
+    detailItemId = null;
+    render();
+    showToast(findItem(id).name + " agregado");
+  }
+
+  var toastTimer = null;
+  function showToast(msg){
+    var t = document.getElementById("toast");
+    if(!t) return;
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ t.classList.remove("show"); }, 1600);
+  }
+
+  function scrollToCat(cat){
+    activeCat = cat;
+    var el = document.getElementById("sec-" + cat.replace(/\s+/g,"-"));
+    if (el) el.scrollIntoView({behavior:"smooth", block:"start"});
+    render();
+  }
+
+  function buildOrderItems(){
+    return cart.map(function(l){
+      var it = findItem(l.id);
+      return { name: it.name, qty: l.qty, price: it.price, note: l.note || "" };
+    });
+  }
+
+  function watchOrder(ref){
+    if (unsubOrder) { unsubOrder(); unsubOrder = null; }
+    unsubOrder = ref.onSnapshot(function(snap){
+      if (!snap.exists) return;
+      var d = snap.data();
+      liveOrder = {
+        id: ref.id,
+        folio: ref.id.slice(-4).toUpperCase(),
+        status: d.status || "nuevo",
+        total: d.total,
+        mesa: d.mesa,
+        mesero: d.mesero
+      };
+      render();
+    }, function(){ /* se queda con el último estado conocido */ });
+  }
+
+  function sendOrder(){
+    if (cartCount() === 0) return;
+    if (!db){
+      orderState = "error";
+      render();
+      return;
+    }
+    var noteEl = document.getElementById("order-note");
+    var note = noteEl ? noteEl.value.trim() : "";
+    var items = buildOrderItems();
+    var total = cartTotal();
+    orderState = "sending";
+    render();
+
+    db.collection("orders").add({
+      restaurante: RESTAURANT,
+      mesa: tableNum,
+      mesero: waiterName,
+      items: items,
+      total: total,
+      nota: note,
+      status: "nuevo",
+      createdAt: new Date().toISOString()
+    }).then(function(ref){
+      cart = [];
+      orderState = "sent";
+      watchOrder(ref);
+      render();
+    }).catch(function(){
+      orderState = "error";
+      render();
+    });
+  }
+
+  function newOrder(){
+    if (unsubOrder) { unsubOrder(); unsubOrder = null; }
+    liveOrder = null;
+    orderState = "cart";
+    render();
+  }
+
+  function openDrawer(){ drawerOpen = true; render(); }
+  function closeDrawer(){ drawerOpen = false; render(); }
+
+  function render(){
+    var app = document.getElementById("app");
+
+    var railHtml = MENU.map(function(s){
+      var cls = "cat-btn" + (s.cat === activeCat ? " active" : "");
+      return '<button class="'+cls+"\" onclick='App.scrollToCat("+JSON.stringify(s.cat)+")'>"+s.cat+'</button>';
+    }).join("");
+
+    var sectionsHtml = MENU.map(function(s){
+      var dishesHtml = s.items.map(function(it){
+        var qty = getPlainQty(it.id);
+        var controlHtml = qty > 0
+          ? '<div class="qty-control">'
+            + '<button class="qty-btn" onclick="App.setPlainQty('+it.id+','+(qty-1)+')">&minus;</button>'
+            + '<span class="qty-val">'+qty+'</span>'
+            + '<button class="qty-btn" onclick="App.setPlainQty('+it.id+','+(qty+1)+')">+</button>'
+            + '</div>'
+          : '<button class="add-btn" aria-label="Agregar" onclick="App.addItem('+it.id+')">+</button>';
+        var thumbHtml = it.photo
+          ? '<img class="dish-photo" src="'+it.photo+'" alt="'+it.name+'" loading="lazy">'
+          : '<div class="dish-photo" style="display:flex;align-items:center;justify-content:center;font-size:28px;">'+it.emoji+'</div>';
+        return '<div class="dish">'
+          + thumbHtml
+          + '<div class="dish-info">'
+            + '<div class="dish-name">'+it.name+'</div>'
+            + '<div class="dish-desc">'+it.desc+'</div>'
+            + '<button class="dish-custom-link" onclick="App.openDetail('+it.id+')">Ver detalle / pedir sin algo →</button>'
+            + '<div class="dish-bottom"><span class="dish-price">'+fmt(it.price)+'</span>'+controlHtml+'</div>'
+          + '</div>'
+        + '</div>';
+      }).join("");
+      return '<div class="section" id="sec-'+s.cat.replace(/\s+/g,"-")+'">'
+        + '<div class="section-head"><h3 class="section-title">'+s.cat+'</h3><span class="count">'+s.items.length+' platillos</span></div>'
+        + dishesHtml
+      + '</div>';
+    }).join("");
+
+    var count = cartCount();
+    var total = cartTotal();
+
+    var cartRowsHtml = cart.map(function(l, idx){
+      var it = findItem(l.id);
+      if (!it) return "";
+      var cartThumb = it.photo
+        ? '<img src="'+it.photo+'" alt="" style="width:34px;height:34px;border-radius:7px;object-fit:cover;flex-shrink:0;">'
+        : '<div style="font-size:20px;">'+it.emoji+'</div>';
+      return '<div class="cart-row">'
+        + cartThumb
+        + '<div class="cart-row-name">'+it.name
+          + '<div class="cart-row-sub">'+fmt(it.price)+' c/u</div>'
+          + (l.note ? '<div class="cart-row-note">'+l.note+'</div>' : '')
+        + '</div>'
+        + '<div class="qty-control">'
+          + '<button class="qty-btn" onclick="App.setLineQty('+idx+','+(l.qty-1)+')">&minus;</button>'
+          + '<span class="qty-val">'+l.qty+'</span>'
+          + '<button class="qty-btn" onclick="App.setLineQty('+idx+','+(l.qty+1)+')">+</button>'
+        + '</div>'
+        + '<div class="cart-row-price">'+fmt(it.price*l.qty)+'</div>'
+      + '</div>';
+    }).join("");
+    if (!cartRowsHtml) cartRowsHtml = '<div class="empty-cart">Tu pedido está vacío.<br>Agrega platillos desde el menú.</div>';
+
+    var detailHtml = "";
+    if (detailItemId){
+      var dIt = findItem(detailItemId);
+      if (dIt){
+        var dPhoto = dIt.photo
+          ? '<img class="detail-photo" src="'+dIt.photo+'" alt="'+dIt.name+'">'
+          : '<div class="detail-photo" style="display:flex;align-items:center;justify-content:center;font-size:48px;">'+dIt.emoji+'</div>';
+        detailHtml =
+          '<div class="onboard-scrim" onclick="if(event.target===this)App.closeDetail()">'
+            + '<div class="onboard-card">'
+              + dPhoto
+              + '<h2 class="font-display" style="margin-top:14px;">'+dIt.name+'</h2>'
+              + '<div class="onboard-sub">'+dIt.desc+'</div>'
+              + '<div class="field"><label>¿Alguna instrucción especial?</label>'
+                + '<textarea id="detail-note" rows="2" placeholder="Ej. sin cebolla, sin cilantro, término medio…"></textarea>'
+              + '</div>'
+              + '<div class="detail-chips">'
+                + (dIt.chips || DEFAULT_CHIPS).map(function(c){ return "<button type=\"button\" class=\"detail-chip\" onclick='App.insertChip("+JSON.stringify(c)+")'>"+c+'</button>'; }).join("")
+              + '</div>'
+              + '<div class="dish-price" style="display:block;margin:14px 0 4px;">'+fmt(dIt.price)+'</div>'
+              + '<button class="onboard-go" onclick="App.addFromDetail('+dIt.id+')">Agregar al pedido</button>'
+              + '<button class="change-link" style="display:block;margin:12px auto 0;" onclick="App.closeDetail()">Cancelar</button>'
+            + '</div>'
+          + '</div>';
+      }
+    }
+
+    var onboardHtml = onboardOpen ? (
+      '<div class="onboard-scrim">'
+        + '<div class="onboard-card">'
+          + '<h2 class="font-display">¡Bienvenido!</h2>'
+          + '<div class="onboard-sub">Antes de ver el menú, dinos en qué mesa estás y quién te está atendiendo.</div>'
+          + (onboardErr ? '<div class="onboard-err" style="display:block;">'+onboardErr+'</div>' : '')
+          + '<div class="field"><label>Número de mesa</label><input id="ob-mesa" type="text" inputmode="numeric" placeholder="Ej. 7" value="'+tableNum+'" onkeydown="if(event.key===\'Enter\')App.submitOnboarding()"></div>'
+          + '<div class="field"><label>¿Quién te atiende?</label><select id="ob-mesero">'
+            + WAITERS.map(function(w){ return '<option value="'+w+'" '+(w===waiterName?"selected":"")+'>'+w+'</option>'; }).join("")
+          + '</select></div>'
+          + '<button class="onboard-go" onclick="App.submitOnboarding()">Ver el menú →</button>'
+        + '</div>'
+      + '</div>'
+    ) : "";
+
+    var sentHtml = '';
+    if (orderState === "sent" && liveOrder){
+      var st = liveOrder.status || "nuevo";
+      var stepOrder = ["nuevo","preparando","listo","entregado"];
+      var dispStatus = st === "cobrado" ? "entregado" : st;
+      var stepIdx = stepOrder.indexOf(dispStatus);
+      sentHtml =
+        '<div class="sent-wrap">'
+          + '<div class="sent-check">✓</div>'
+          + '<h2 class="font-display">¡Pedido enviado a cocina!</h2>'
+          + '<div class="sent-folio">Folio #'+liveOrder.folio+' &middot; Mesa '+liveOrder.mesa+'</div>'
+          + '<div class="track">'
+            + stepOrder.map(function(s,i){
+                var done = i<=stepIdx;
+                return '<div class="track-row'+(done?" done":"")+'">'
+                  + '<div class="track-dot">'+(done?'✓':'')+'</div>'
+                  + '<div class="track-text">'+STATUS_LABEL[s]+'</div>'
+                + '</div>';
+              }).join('')
+          + '</div>'
+          + '<div class="sent-total">Total: '+fmt(liveOrder.total)+(st==="cobrado" ? ' &middot; cuenta ya cobrada, ¡gracias!' : ' &middot; se paga en mesa')+'</div>'
+          + '<button class="onboard-go" style="margin-top:18px;" onclick="App.newOrder()">Hacer otro pedido</button>'
+        + '</div>';
+    }
+
+    app.innerHTML =
+      '<div class="wrap">'
+      + '<div class="hero">'
+        + '<div class="table-chip">🍽️ Mesa <b>'+(tableNum||"—")+'</b> &middot; atiende <b>'+(waiterName||"—")+'</b><button class="change-link" onclick="App.changeTable()">Cambiar</button></div>'
+        + '<div class="brand-row">'
+          + '<div><div class="brand-name font-display">'+RESTAURANT+'</div><div class="brand-tag">Cocina mexicana casual &middot; hecho al momento</div></div>'
+          + '<div class="mark">TBS</div>'
+        + '</div>'
+      + '</div>'
+      + '<div class="rail">'+railHtml+'</div>'
+      + sectionsHtml
+      + '<div style="height:4px;"></div>'
+      + '<button class="cart-bar" '+(count===0||orderState==="sent"?"hidden":"")+' onclick="App.openDrawer()">'
+        + '<div class="cart-left"><div class="cart-badge">'+count+'</div><div><div class="cart-label">Tu pedido</div><div class="cart-total">'+fmt(total)+'</div></div></div>'
+        + '<div class="cart-cta">Ver pedido →</div>'
+      + '</button>'
+      + (orderState==="sent" ? '<button class="cart-bar" onclick="App.openDrawer()"><div class="cart-left"><div class="cart-badge" style="background:var(--ok);">✓</div><div><div class="cart-label">Tu pedido</div><div class="cart-total">Folio #'+(liveOrder?liveOrder.folio:"")+'</div></div></div><div class="cart-cta">Ver estado →</div></button>' : '')
+      + '<div class="scrim'+(drawerOpen?" open":"")+'" onclick="App.closeDrawer()"></div>'
+      + '<div class="drawer'+(drawerOpen?" open":"")+'">'
+        + '<div class="drawer-head"><h2 class="font-display">'+(orderState==="sent"?"Estado del pedido":"Tu pedido")+'</h2><button class="close-btn" onclick="App.closeDrawer()">✕</button></div>'
+        + '<div class="drawer-body">'
+          + (orderState==="sent" ? sentHtml : cartRowsHtml + (count>0 ? '<div class="note-field"><label>Notas para cocina (opcional)</label><textarea id="order-note" rows="2" placeholder="Ej. sin cebolla, término medio, etc."></textarea></div>' : ''))
+        + '</div>'
+        + (orderState==="sent" ? '' :
+          '<div class="drawer-foot">'
+            + '<div class="total-row"><span class="label">Total a pagar en mesa</span><span class="value">'+fmt(total)+'</span></div>'
+            + (orderState==="error" ? '<div class="onboard-err" style="display:block;">No se pudo conectar con cocina. Levanta la mano y pide ayuda a tu mesero, o inténtalo de nuevo.</div>' : '')
+            + '<button class="send-btn" '+(count===0||orderState==="sending"?'disabled style="opacity:.5;"':"")+' onclick="App.sendOrder()">'
+              + (orderState==="sending"
+                ? 'Enviando…'
+                : '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l18-8-8 18-2-8-8-2z"/></svg>Enviar pedido a cocina')
+            + '</button>'
+            + '<div class="send-sub">Tu pedido llega directo a la pantalla de cocina, sin WhatsApp</div>'
+          + '</div>'
+        )
+      + '</div>'
+      + '<div class="toast" id="toast"></div>'
+      + onboardHtml
+      + detailHtml
+      + '</div>';
+  }
+
+  window.App = {
+    addItem: addItem, setPlainQty: setPlainQty, setLineQty: setLineQty, scrollToCat: scrollToCat,
+    openDrawer: openDrawer, closeDrawer: closeDrawer,
+    sendOrder: sendOrder, newOrder: newOrder,
+    submitOnboarding: submitOnboarding, changeTable: changeTable,
+    openDetail: openDetail, closeDetail: closeDetail, insertChip: insertChip, addFromDetail: addFromDetail
+  };
+
+  render();
+}
+
+function CocinaApp(){
+  var STATUS_LABEL = { nuevo:"Nuevo", preparando:"Preparando", listo:"Listo", entregado:"Entregado" };
+  var NEXT_STATUS = { nuevo:"preparando", preparando:"listo", listo:"entregado" };
+  var NEXT_LABEL = { nuevo:"Empezar a preparar", preparando:"Marcar listo", listo:"Marcar entregado" };
+  var KITCHEN_PIN = "1234"; // PIN de demo — cámbialo por restaurante antes de entregar en producción
+
+  var db = null;
+  var orders = [];
+  var loaded = false;
+  var unsub = null;
+  var tickTimer = null;
+
+  function readLocal(key){
+    try{ return localStorage.getItem(key); }catch(e){ return null; }
+  }
+  function writeLocal(key, val){
+    try{ localStorage.setItem(key, val); }catch(e){}
+  }
+
+  var locked = readLocal("sl_cocina_unlocked") !== "1";
+  var pinError = "";
+
+  function submitPin(){
+    var el = document.getElementById("pin-input");
+    var val = el ? el.value.trim() : "";
+    if (val === KITCHEN_PIN){
+      writeLocal("sl_cocina_unlocked", "1");
+      locked = false;
+      pinError = "";
+      render();
+      if (db) startWatch();
+    } else {
+      pinError = "PIN incorrecto. Intenta de nuevo.";
+      render();
+    }
+  }
+
+  function lockScreen(){
+    locked = true;
+    render();
+  }
+
+  function fmt(n){ return "$" + (n||0).toLocaleString("es-MX"); }
+
+  function minsAgo(iso){
+    var d = new Date(iso).getTime();
+    if (!d) return "";
+    var m = Math.max(0, Math.round((Date.now() - d) / 60000));
+    return m <= 0 ? "ahora" : (m + " min");
+  }
+
+  function advance(id, current){
+    var next = NEXT_STATUS[current];
+    if (!next || !db) return;
+    db.doc("orders/" + id).update({ status: next }).catch(function(){});
+  }
+
+  function startWatch(){
+    if (!db) return;
+    unsub = db.collection("orders")
+      .orderBy("createdAt", "asc")
+      .limit(100)
+      .onSnapshot(function(snap){
+        orders = snap.docs
+          .map(function(d){ return Object.assign({ id: d.id }, d.data()); })
+          .filter(function(o){ var s = o.status || "nuevo"; return s !== "entregado" && s !== "cobrado"; });
+        loaded = true;
+        render();
+      }, function(){ loaded = true; render(); });
+  }
+
+  function render(){
+    var app = document.getElementById("app");
+
+    if (locked){
+      app.innerHTML =
+        '<div class="k-lock-wrap">'
+          + '<div class="k-lock-card">'
+            + '<div class="k-lock-icon">🔒</div>'
+            + '<h2 class="font-display">Pantalla de cocina</h2>'
+            + '<div class="k-lock-sub">Tacos El Buen Sazón &middot; acceso solo para personal</div>'
+            + (window.OrderSislandDemo ? '<div class="k-lock-sub" style="margin-top:-12px">PIN de demostración: <b>1234</b></div>' : '')
+            + (pinError ? '<div class="onboard-err" style="display:block;">'+pinError+'</div>' : '')
+            + '<input id="pin-input" class="k-pin-input" type="password" inputmode="numeric" maxlength="4" placeholder="····" onkeydown="if(event.key===\'Enter\')App.submitPin()">'
+            + '<button class="onboard-go" onclick="App.submitPin()">Entrar</button>'
+          + '</div>'
+        + '</div>';
+      return;
+    }
+
+    var cols = ["nuevo", "preparando", "listo"];
+
+    var colsHtml = cols.map(function(status){
+      var list = orders.filter(function(o){ return (o.status || "nuevo") === status; });
+      var cardsHtml = list.length ? list.map(function(o){
+        var itemsHtml = (o.items || []).map(function(it){
+          return '<div class="k-item"><span>'+it.qty+'x '+it.name+(it.note?'<div class="k-item-note">'+it.note+'</div>':'')+'</span><span>'+fmt(it.price*it.qty)+'</span></div>';
+        }).join("");
+        return '<div class="k-card">'
+          + '<div class="k-card-top"><span class="k-mesa">Mesa '+(o.mesa||"—")+'</span><span class="k-time">'+minsAgo(o.createdAt)+'</span></div>'
+          + '<div class="k-mesero">Atiende: '+(o.mesero||"—")+' &middot; folio #'+o.id.slice(-4).toUpperCase()+'</div>'
+          + '<div class="k-items">'+itemsHtml+'</div>'
+          + (o.nota ? '<div class="k-nota">Nota: '+o.nota+'</div>' : '')
+          + '<div class="k-bottom"><span class="k-total">'+fmt(o.total)+'</span>'
+            + (NEXT_STATUS[status] ? "<button class=\"k-btn\" onclick='App.advance("+JSON.stringify(o.id)+","+JSON.stringify(status)+")'>"+NEXT_LABEL[status]+' →</button>' : '')
+          + '</div>'
+        + '</div>';
+      }).join("") : '<div class="k-empty">Sin pedidos</div>';
+      return '<div class="k-col"><div class="k-col-head"><span>'+STATUS_LABEL[status]+'</span><span class="k-count">'+list.length+'</span></div><div class="k-col-body">'+cardsHtml+'</div></div>';
+    }).join("");
+
+    app.innerHTML =
+      '<div class="k-header">'
+        + '<div><div class="k-title font-display">Cocina · Tacos El Buen Sazón</div><div class="k-sub">Pantalla en vivo de pedidos</div></div>'
+        + '<div style="display:flex;align-items:center;gap:14px;">'
+          + '<div class="k-live">'+(db ? '🟢 En vivo' : (loaded ? '⚪ Sin conexión' : '… conectando'))+'</div>'
+          + '<button class="k-lock-btn" onclick="App.lockScreen()" title="Bloquear pantalla">🔒</button>'
+        + '</div>'
+      + '</div>'
+      + '<div class="k-board">'+colsHtml+'</div>';
+  }
+
+  if (window.claude && window.claude.use){
+    window.claude.use("db").then(function(d){
+      db = d; loaded = true;
+      if (db && !locked) startWatch(); else render();
+    }).catch(function(){ loaded = true; render(); });
+  } else {
+    loaded = true;
+  }
+
+  window.App = { advance: advance, submitPin: submitPin, lockScreen: lockScreen };
+  tickTimer = setInterval(render, 30000);
+  render();
+}
+
+function CajaApp(){
+  var RESTAURANT = "Tacos El Buen Sazón";
+  var CAJA_PIN = "1234"; // PIN de demo — cámbialo por restaurante antes de entregar en producción
+  var STATUS_LABEL = { nuevo:"Nuevo", preparando:"Preparando", listo:"Listo", entregado:"Entregado" };
+
+  var db = null;
+  var orders = [];
+  var loaded = false;
+  var unsub = null;
+  var selectedMesa = null;
+  var chargeBusy = false;
+  var confirmingCharge = false;
+
+  function readLocal(key){
+    try{ return localStorage.getItem(key); }catch(e){ return null; }
+  }
+  function writeLocal(key, val){
+    try{ localStorage.setItem(key, val); }catch(e){}
+  }
+
+  var locked = readLocal("sl_caja_unlocked") !== "1";
+  var pinError = "";
+
+  function submitPin(){
+    var el = document.getElementById("pin-input");
+    var val = el ? el.value.trim() : "";
+    if (val === CAJA_PIN){
+      writeLocal("sl_caja_unlocked", "1");
+      locked = false;
+      pinError = "";
+      render();
+      if (db) startWatch();
+    } else {
+      pinError = "PIN incorrecto. Intenta de nuevo.";
+      render();
+    }
+  }
+
+  function lockScreen(){
+    locked = true;
+    selectedMesa = null;
+    render();
+  }
+
+  function fmt(n){ return "$" + (n||0).toLocaleString("es-MX"); }
+
+  function minsAgo(iso){
+    var d = new Date(iso).getTime();
+    if (!d) return "";
+    var m = Math.max(0, Math.round((Date.now() - d) / 60000));
+    return m <= 0 ? "ahora" : (m + " min");
+  }
+
+  function startWatch(){
+    if (!db) return;
+    unsub = db.collection("orders")
+      .orderBy("createdAt", "asc")
+      .limit(200)
+      .onSnapshot(function(snap){
+        orders = snap.docs
+          .map(function(d){ return Object.assign({ id: d.id }, d.data()); })
+          .filter(function(o){ return (o.status || "nuevo") !== "cobrado"; });
+        loaded = true;
+        render();
+      }, function(){ loaded = true; render(); });
+  }
+
+  function tablesSummary(){
+    var map = {};
+    orders.forEach(function(o){
+      var mesa = o.mesa || "—";
+      if (!map[mesa]) map[mesa] = { mesa: mesa, total: 0, count: 0, lastAt: o.createdAt };
+      map[mesa].total += (o.total || 0);
+      map[mesa].count += 1;
+      if (o.createdAt && (!map[mesa].lastAt || o.createdAt > map[mesa].lastAt)) map[mesa].lastAt = o.createdAt;
+    });
+    return Object.keys(map).map(function(k){ return map[k]; })
+      .sort(function(a,b){ return (a.lastAt||"") < (b.lastAt||"") ? 1 : -1; });
+  }
+
+  function searchMesa(){
+    var el = document.getElementById("caja-mesa-input");
+    var val = el ? el.value.trim() : "";
+    if (!val) return;
+    selectMesa(val);
+  }
+
+  function selectMesa(mesa){
+    selectedMesa = String(mesa);
+    confirmingCharge = false;
+    render();
+  }
+
+  function clearSelection(){
+    selectedMesa = null;
+    confirmingCharge = false;
+    render();
+  }
+
+  function askCharge(){
+    confirmingCharge = true;
+    render();
+  }
+
+  function cancelCharge(){
+    confirmingCharge = false;
+    render();
+  }
+
+  function chargeMesa(mesa){
+    if (!db || chargeBusy) return;
+    var list = orders.filter(function(o){ return String(o.mesa) === String(mesa); });
+    if (!list.length) return;
+    confirmingCharge = false;
+    chargeBusy = true;
+    render();
+    Promise.all(list.map(function(o){
+      return db.doc("orders/" + o.id).update({ status: "cobrado" }).catch(function(){});
+    })).then(function(){
+      chargeBusy = false;
+      selectedMesa = null;
+      render();
+    });
+  }
+
+  function render(){
+    var app = document.getElementById("app");
+
+    if (locked){
+      app.innerHTML =
+        '<div class="k-lock-wrap">'
+          + '<div class="k-lock-card">'
+            + '<div class="k-lock-icon">💰</div>'
+            + '<h2 class="font-display">Caja</h2>'
+            + '<div class="k-lock-sub">'+RESTAURANT+' &middot; acceso solo para caja/gerencia</div>'
+            + (window.OrderSislandDemo ? '<div class="k-lock-sub" style="margin-top:-12px">PIN de demostración: <b>1234</b></div>' : '')
+            + (pinError ? '<div class="onboard-err" style="display:block;">'+pinError+'</div>' : '')
+            + '<input id="pin-input" class="k-pin-input" type="password" inputmode="numeric" maxlength="4" placeholder="····" onkeydown="if(event.key===\'Enter\')App.submitPin()">'
+            + '<button class="onboard-go" onclick="App.submitPin()">Entrar</button>'
+          + '</div>'
+        + '</div>';
+      return;
+    }
+
+    var tables = tablesSummary();
+
+    var tablesHtml = tables.length ? tables.map(function(t){
+      var active = selectedMesa === String(t.mesa);
+      return '<button class="caja-chip'+(active?" active":"")+"\" onclick='App.selectMesa("+JSON.stringify(t.mesa)+")'>"
+        + '<span class="caja-chip-mesa">Mesa '+t.mesa+'</span>'
+        + '<span class="caja-chip-total">'+fmt(t.total)+'</span>'
+      + '</button>';
+    }).join("") : '<div class="k-empty">No hay cuentas abiertas</div>';
+
+    var detailHtml = "";
+    if (selectedMesa){
+      var list = orders.filter(function(o){ return String(o.mesa) === String(selectedMesa); });
+      if (!list.length){
+        detailHtml = '<div class="caja-detail"><div class="k-empty">Esta mesa ya no tiene cuenta abierta.</div></div>';
+      } else {
+        var grand = 0;
+        var ordersHtml = list.map(function(o){
+          grand += (o.total || 0);
+          var itemsHtml = (o.items||[]).map(function(it){
+            return '<div class="k-item"><span>'+it.qty+'x '+it.name+(it.note?'<div class="k-item-note">'+it.note+'</div>':'')+'</span><span>'+fmt(it.price*it.qty)+'</span></div>';
+          }).join("");
+          return '<div class="caja-order">'
+            + '<div class="k-card-top"><span class="k-mesa">Folio #'+o.id.slice(-4).toUpperCase()+' &middot; '+STATUS_LABEL[o.status||"nuevo"]+'</span><span class="k-time">'+minsAgo(o.createdAt)+'</span></div>'
+            + '<div class="k-mesero">Atiende: '+(o.mesero||"—")+'</div>'
+            + '<div class="k-items">'+itemsHtml+'</div>'
+            + (o.nota ? '<div class="k-nota">Nota: '+o.nota+'</div>' : '')
+            + '<div class="k-bottom"><span></span><span class="k-total">'+fmt(o.total)+'</span></div>'
+          + '</div>';
+        }).join("");
+        var actionHtml;
+        if (chargeBusy){
+          actionHtml = '<button class="send-btn" disabled style="opacity:.5;">Procesando…</button>';
+        } else if (confirmingCharge){
+          actionHtml =
+            '<div class="caja-confirm">'
+              + '<div class="caja-confirm-text">¿Confirmas que la mesa '+selectedMesa+' ya pagó '+fmt(grand)+'? Esto cerrará su cuenta.</div>'
+              + '<div class="caja-confirm-row">'
+                + '<button class="caja-btn-ghost" onclick="App.cancelCharge()">Cancelar</button>'
+                + "<button class=\"send-btn\" onclick='App.chargeMesa("+JSON.stringify(selectedMesa)+")'>Sí, ya pagó</button>"
+              + '</div>'
+            + '</div>';
+        } else {
+          actionHtml = '<button class="send-btn" onclick="App.askCharge()">Marcar cuenta como cobrada</button>';
+        }
+        detailHtml =
+          '<div class="caja-detail">'
+            + '<div class="caja-detail-head"><h3 class="font-display">Mesa '+selectedMesa+'</h3><button class="change-link" onclick="App.clearSelection()">Cerrar</button></div>'
+            + ordersHtml
+            + '<div class="caja-grand"><span>Total a cobrar</span><span class="caja-grand-total">'+fmt(grand)+'</span></div>'
+            + actionHtml
+          + '</div>';
+      }
+    }
+
+    app.innerHTML =
+      '<div class="k-header">'
+        + '<div><div class="k-title font-display">Caja &middot; '+RESTAURANT+'</div><div class="k-sub">Cuentas abiertas por mesa</div></div>'
+        + '<div style="display:flex;align-items:center;gap:14px;">'
+          + '<div class="k-live">'+(db ? '🟢 En vivo' : (loaded ? '⚪ Sin conexión' : '… conectando'))+'</div>'
+          + '<button class="k-lock-btn" onclick="App.lockScreen()" title="Bloquear pantalla">🔒</button>'
+        + '</div>'
+      + '</div>'
+      + '<div class="caja-wrap">'
+        + '<div class="caja-search-row">'
+          + '<input id="caja-mesa-input" class="caja-input" type="text" inputmode="numeric" placeholder="Buscar mesa por número…" onkeydown="if(event.key===\'Enter\')App.searchMesa()">'
+          + '<button class="caja-btn" onclick="App.searchMesa()">Buscar</button>'
+        + '</div>'
+        + '<div class="caja-section-label">Mesas con cuenta abierta</div>'
+        + '<div class="caja-tables">'+tablesHtml+'</div>'
+        + detailHtml
+      + '</div>';
+  }
+
+  if (window.claude && window.claude.use){
+    window.claude.use("db").then(function(d){
+      db = d; loaded = true;
+      if (db && !locked) startWatch(); else render();
+    }).catch(function(){ loaded = true; render(); });
+  } else {
+    loaded = true;
+  }
+
+  window.App = {
+    submitPin: submitPin, lockScreen: lockScreen, searchMesa: searchMesa,
+    selectMesa: selectMesa, clearSelection: clearSelection, chargeMesa: chargeMesa,
+    askCharge: askCharge, cancelCharge: cancelCharge
+  };
+  render();
+}
+
+// Cambiar el "#" en la misma pestaña (p.ej. de #cocina a #caja) no recarga
+// la página por sí solo en los navegadores — forzamos recarga para que
+// siempre se abra la sección correcta.
+window.addEventListener("hashchange", function(){ location.reload(); });
+
+if (location.hash === "#cocina") { CocinaApp(); }
+else if (location.hash === "#caja") { CajaApp(); }
+else { ClienteApp(); }
+</script>
+
+</body></html>
