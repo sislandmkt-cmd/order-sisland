@@ -59,7 +59,7 @@ h1,h2,h3{font-family:'Fraunces','Georgia',serif; text-wrap:balance; margin:0;}
   padding:84px 18px 16px;
   background:
     linear-gradient(180deg, rgba(10,7,4,.15), var(--bg) 92%),
-    url('images/hero-restaurante.jpg') center 38% / cover no-repeat;
+    url('hero-restaurante.jpg') center 38% / cover no-repeat;
   border-bottom:1px solid var(--line);
 }
 .table-chip{
@@ -385,45 +385,49 @@ h1,h2,h3{font-family:'Fraunces','Georgia',serif; text-wrap:balance; margin:0;}
 
 <div id="app"></div>
 
+<script>
+/* Si una foto no carga con guion, intenta el nombre con espacio (p. ej. "10 jamaica.jpg") */
+document.addEventListener("error",function(e){var t=e.target;if(t&&t.tagName==="IMG"&&!t.dataset.alt){var a=t.getAttribute("src")||"";var b=a.replace(/^(\d+)-/,"$1 ");if(b!==a){t.dataset.alt="1";t.src=b;}}},true);
+</script>
 <script src="demo-db.js"></script>
 <script>
 function ClienteApp(){
 
   var MENU = [
     { cat:"Entradas", items:[
-      {id:1, name:"Guacamole con totopos", desc:"Aguacate fresco machacado al momento, cebolla, cilantro y chile serrano", price:85, emoji:"🥑", photo:"images/01-guacamole.jpg",
+      {id:1, name:"Guacamole con totopos", desc:"Aguacate fresco machacado al momento, cebolla, cilantro y chile serrano", price:85, emoji:"🥑", photo:"01-guacamole.jpg",
         chips:["Sin cebolla","Sin cilantro","Sin chile serrano","Extra limón","Para llevar"]},
-      {id:2, name:"Queso fundido", desc:"Con chorizo artesanal, acompañado de tortillas de harina", price:95, emoji:"🧀", photo:"images/02-queso-fundido.jpg",
+      {id:2, name:"Queso fundido", desc:"Con chorizo artesanal, acompañado de tortillas de harina", price:95, emoji:"🧀", photo:"02-queso-fundido.jpg",
         chips:["Sin chorizo","Extra tortillas","Para llevar"]},
-      {id:3, name:"Esquites", desc:"Elote desgranado, mayonesa, queso cotija y chile piquín", price:55, emoji:"🌽", photo:"images/03-esquites.jpg",
+      {id:3, name:"Esquites", desc:"Elote desgranado, mayonesa, queso cotija y chile piquín", price:55, emoji:"🌽", photo:"03-esquites.jpg",
         chips:["Sin mayonesa","Sin queso","Sin picante","Para llevar"]}
     ]},
     { cat:"Platos fuertes", items:[
-      {id:4, name:"Tacos al pastor", desc:"Orden de 4 · Marinados en adobo, piña asada, cebolla y cilantro", price:95, emoji:"🌮", photo:"images/04-tacos-pastor.jpg",
+      {id:4, name:"Tacos al pastor", desc:"Orden de 4 · Marinados en adobo, piña asada, cebolla y cilantro", price:95, emoji:"🌮", photo:"04-tacos-pastor.jpg",
         chips:["Sin cebolla","Sin cilantro","Sin piña","Extra salsa","Para llevar"]},
-      {id:5, name:"Tacos de bistec", desc:"Orden de 4 · Res a la plancha, salsa verde y guacamole", price:110, emoji:"🌮", photo:"images/05-tacos-bistec.jpg",
+      {id:5, name:"Tacos de bistec", desc:"Orden de 4 · Res a la plancha, salsa verde y guacamole", price:110, emoji:"🌮", photo:"05-tacos-bistec.jpg",
         chips:["Sin cebolla","Sin cilantro","Sin salsa verde","Extra guacamole","Término medio","Para llevar"]},
-      {id:6, name:"Tacos de pescado estilo Baja", desc:"Orden de 4 · Empanizados, col morada, pico de gallo y crema chipotle", price:120, emoji:"🐟", photo:"images/06-tacos-pescado.jpg",
+      {id:6, name:"Tacos de pescado estilo Baja", desc:"Orden de 4 · Empanizados, col morada, pico de gallo y crema chipotle", price:120, emoji:"🐟", photo:"06-tacos-pescado.jpg",
         chips:["Sin col morada","Sin crema chipotle","Sin pico de gallo","Extra limón","Para llevar"]},
-      {id:7, name:"Quesabirria", desc:"Orden de 3 · Con consomé para remojar", price:130, emoji:"🫕", photo:"images/07-quesabirria.jpg",
+      {id:7, name:"Quesabirria", desc:"Orden de 3 · Con consomé para remojar", price:130, emoji:"🫕", photo:"07-quesabirria.jpg",
         chips:["Sin cebolla","Sin cilantro","Extra consomé","Para llevar"]},
-      {id:8, name:"Gringa de pastor", desc:"Tortilla de harina, queso gratinado y pastor", price:70, emoji:"🫓", photo:"images/08-gringa.jpg",
+      {id:8, name:"Gringa de pastor", desc:"Tortilla de harina, queso gratinado y pastor", price:70, emoji:"🫓", photo:"08-gringa.jpg",
         chips:["Sin cebolla","Sin piña","Extra queso","Para llevar"]}
     ]},
     { cat:"Bebidas", items:[
-      {id:9, name:"Agua de horchata", desc:"De la jarra del día", price:35, emoji:"🥤", photo:"images/09-horchata.jpg",
+      {id:9, name:"Agua de horchata", desc:"De la jarra del día", price:35, emoji:"🥤", photo:"09-horchata.jpg",
         chips:["Sin azúcar","Poco hielo","Sin hielo","Para llevar"]},
-      {id:10, name:"Agua de jamaica", desc:"De la jarra del día", price:35, emoji:"🥤", photo:"images/10-jamaica.jpg",
+      {id:10, name:"Agua de jamaica", desc:"De la jarra del día", price:35, emoji:"🥤", photo:"10-jamaica.jpg",
         chips:["Sin azúcar","Poco hielo","Sin hielo","Para llevar"]},
-      {id:11, name:"Michelada", desc:"Cerveza clara, limón, salsas y sal de gusano", price:75, emoji:"🍺", photo:"images/11-michelada.jpg",
+      {id:11, name:"Michelada", desc:"Cerveza clara, limón, salsas y sal de gusano", price:75, emoji:"🍺", photo:"11-michelada.jpg",
         chips:["Sin sal de gusano","Sin chile","Extra limón","Para llevar"]},
-      {id:12, name:"Refresco", desc:"Línea Coca-Cola, 355 ml", price:30, emoji:"🥫", photo:"images/12-refresco.jpg",
+      {id:12, name:"Refresco", desc:"Línea Coca-Cola, 355 ml", price:30, emoji:"🥫", photo:"12-refresco.jpg",
         chips:["Sin hielo","Para llevar"]}
     ]},
     { cat:"Postres", items:[
-      {id:13, name:"Churros con cajeta", desc:"Espolvoreados con canela, relleno de cajeta", price:60, emoji:"🥮", photo:"images/13-churros.jpg",
+      {id:13, name:"Churros con cajeta", desc:"Espolvoreados con canela, relleno de cajeta", price:60, emoji:"🥮", photo:"13-churros.jpg",
         chips:["Sin canela","Extra cajeta","Para llevar"]},
-      {id:14, name:"Flan napolitano", desc:"Receta de la casa", price:55, emoji:"🍮", photo:"images/14-flan.jpg",
+      {id:14, name:"Flan napolitano", desc:"Receta de la casa", price:55, emoji:"🍮", photo:"14-flan.jpg",
         chips:["Sin caramelo","Para llevar"]}
     ]}
   ];
