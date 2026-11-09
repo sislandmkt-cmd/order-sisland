@@ -48,6 +48,17 @@
         save(all);
         return Promise.resolve();
       },
+      get: function () {
+        var d = (load()[coll] || {})[id];
+        return Promise.resolve({ exists: !!d, id: id, data: function () { return d ? Object.assign({}, d) : undefined; } });
+      },
+      set: function (data) {
+        var all = load();
+        all[coll] = all[coll] || {};
+        all[coll][id] = Object.assign({}, data);
+        save(all);
+        return Promise.resolve();
+      },
       onSnapshot: function (cb) {
         return subscribe(function () {
           var d = (load()[coll] || {})[id];
