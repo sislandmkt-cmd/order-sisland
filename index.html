@@ -1,4 +1,13 @@
-<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><link rel="icon" type="image/png" href="DATAURI"><title>Order SISLAND · Demo — Tacos El Buen Sazón</title><meta name="description" content="Demo de Order SISLAND: menú digital con pedido desde la mesa, pantalla de cocina y caja en tiempo real."></head><body>
+<!doctype html><html><head><!-- Google tag (gtag.js) · Order SISLAND -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-JFMQ6WSHDW"></script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','G-JFMQ6WSHDW');
+// Eventos personalizados de la demo (no se envían datos personales)
+function slTrack(n,p){try{gtag('event',n,Object.assign({app:'order_sisland'},p||{}));}catch(e){}}
+slTrack('abrir_pantalla',{pantalla:(location.hash||'#menu').slice(1)});
+</script>
+<meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><link rel="icon" type="image/png" href="DATAURI"><title>Order SISLAND · Demo — Tacos El Buen Sazón</title><meta name="description" content="Demo de Order SISLAND: menú digital con pedido desde la mesa, pantalla de cocina y caja en tiempo real."></head><body>
 <style>
 /* Layout: single-column mobile menu — sticky category rail up top, scrolling dish list,
    sticky cart bar pinned to the bottom that expands into a drawer before checkout via WhatsApp */
@@ -565,6 +574,7 @@ function ClienteApp(){
     waiterName = w || "No lo sé";
     writeSession("sl_mesa", tableNum);
     writeSession("sl_mesero", waiterName);
+    slTrack("iniciar_mesa",{mesa:tableNum});
     onboardOpen = false;
     onboardErr = "";
     render();
@@ -626,6 +636,7 @@ function ClienteApp(){
     if (findItem(id).available === false) return;
     setPlainQty(id, getPlainQty(id) + 1);
     showToast(findItem(id).name + " agregado");
+    slTrack("agregar_platillo",{item_name:findItem(id).name,price:findItem(id).price,metodo:"rapido"});
   }
 
   function openDetail(id){
@@ -654,6 +665,7 @@ function ClienteApp(){
     detailItemId = null;
     render();
     showToast(findItem(id).name + " agregado");
+    slTrack("agregar_platillo",{item_name:findItem(id).name,price:findItem(id).price,metodo:"detalle",con_nota:!!note});
   }
 
   var toastTimer = null;
@@ -723,6 +735,7 @@ function ClienteApp(){
     }).then(function(ref){
       cart = [];
       orderState = "sent";
+      slTrack("enviar_pedido",{value:total,currency:"MXN",articulos:items.reduce(function(s,i){return s+i.qty;},0)});
       watchOrder(ref);
       render();
     }).catch(function(){
@@ -955,6 +968,7 @@ function CocinaApp(){
     var val = el ? el.value.trim() : "";
     if (val === currentPin()){
       writeLocal("sl_cocina_unlocked", currentPin());
+      slTrack("desbloquear_pantalla",{pantalla:"cocina"});
       locked = false;
       pinError = "";
       render();
@@ -983,6 +997,7 @@ function CocinaApp(){
   function advance(id, current){
     var next = NEXT_STATUS[current];
     if (!next || !db) return;
+    slTrack("cambiar_estado",{estado:next});
     db.doc("orders/" + id).update({ status: next }).catch(function(){});
   }
 
@@ -1109,6 +1124,7 @@ function CajaApp(){
     var val = el ? el.value.trim() : "";
     if (val === currentPin()){
       writeLocal("sl_caja_unlocked", currentPin());
+      slTrack("desbloquear_pantalla",{pantalla:"caja"});
       locked = false;
       pinError = "";
       render();
@@ -1196,6 +1212,7 @@ function CajaApp(){
     if (!db || chargeBusy) return;
     var list = orders.filter(function(o){ return String(o.mesa) === String(mesa); });
     if (!list.length) return;
+    slTrack("cobrar_mesa",{value:list.reduce(function(s,o){return s+(o.total||0);},0),currency:"MXN"});
     confirmingCharge = false;
     chargeBusy = true;
     render();
@@ -1377,6 +1394,7 @@ function AdminApp(){
     var val = el ? el.value.trim() : "";
     if (val === currentPin()){
       writeLocal("sl_admin_unlocked", currentPin());
+      slTrack("desbloquear_pantalla",{pantalla:"admin"});
       locked = false; pinError = ""; render();
     } else { pinError = "PIN incorrecto. Intenta de nuevo."; render(); }
   }
@@ -1419,6 +1437,7 @@ function AdminApp(){
       writeLocal("sl_admin_unlocked", v.data.pins.admin);
       cfg = v.data;
       msg = "Cambios guardados. Los clientes y la cocina ya los ven."; msgKind = "ok";
+      slTrack("guardar_admin");
       setDirty(false); paintMsg();
     }).catch(function(){
       saving = false;
