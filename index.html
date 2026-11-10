@@ -7,6 +7,45 @@ gtag('js',new Date());gtag('config','G-JFMQ6WSHDW');
 function slTrack(n,p){try{gtag('event',n,Object.assign({app:'order_sisland'},p||{}));}catch(e){}}
 slTrack('abrir_pantalla',{pantalla:(location.hash||'#menu').slice(1)});
 </script>
+<style>
+/* ---- Ventas y corte (#ventas) ---- */
+.v-wrap{max-width:860px;padding-bottom:110px}
+.v-quick{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.v-dates{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.v-dates label,.v-form label{display:flex;flex-direction:column;gap:5px;font-size:11.5px;font-weight:600;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em}
+.v-range{margin-top:10px;font-size:13px;color:var(--ink-soft)}
+.v-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:640px){.v-kpis{grid-template-columns:1fr 1fr}}
+.v-kpi{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:4px}
+.v-kpi span{font-size:11.5px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.04em;font-weight:600}
+.v-kpi b{font-family:'Fraunces',serif;font-size:24px;font-weight:600}
+.v-kpi small{font-size:11.5px;color:var(--ink-soft)}
+.v-kpi-open b{color:var(--accent)}
+.v-row{display:flex;justify-content:space-between;align-items:baseline;gap:10px;padding:7px 0;border-bottom:1px dashed var(--line);font-size:14px}
+.v-row:last-child{border-bottom:none}.v-row small{color:var(--ink-soft)}
+.v-strong{font-weight:700}
+.v-bar-row{display:grid;grid-template-columns:minmax(110px,38%) 1fr auto;align-items:center;gap:10px;padding:6px 0;font-size:13.5px}
+.v-bar{height:9px;background:color-mix(in srgb,var(--line) 70%,transparent);border-radius:9px;overflow:hidden}
+.v-bar i{display:block;height:100%;background:var(--accent);border-radius:9px}
+.v-hours{display:flex;align-items:flex-end;gap:6px;height:140px;padding-top:6px}
+.v-hcol{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;gap:4px;font-size:10.5px;color:var(--ink-soft)}
+.v-hbar{width:100%;max-width:34px;background:var(--gold);border-radius:6px 6px 2px 2px}
+.v-form{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:10px 0}
+@media(max-width:640px){.v-form{grid-template-columns:1fr}}
+.v-calc{background:color-mix(in srgb,var(--gold) 9%,var(--surface));border:1px solid var(--line);border-radius:11px;padding:6px 14px}
+.v-ok{color:var(--ok)}.v-plus{color:var(--gold)}.v-minus{color:var(--accent)}
+.v-head-row{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px}
+.v-ticket{border:1px solid var(--line);border-radius:11px;padding:10px 12px;margin-top:8px;display:grid;grid-template-columns:1fr auto;gap:2px 10px}
+.v-ticket-top{display:flex;gap:10px;align-items:baseline}.v-ticket-top span{font-size:12px;color:var(--ink-soft)}
+.v-ticket-sub{font-size:12px;color:var(--ink-soft)}
+.v-ticket-items{grid-column:1/2;font-size:12.5px}
+.v-ticket-total{grid-column:2/3;grid-row:1/4;align-self:center;font-family:'Fraunces',serif;font-weight:600;font-size:17px}
+.v-corte-item{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:13.5px}
+.pay-row{display:flex;gap:8px;margin:0 0 12px}
+.pay-btn{flex:1;padding:10px 8px;border-radius:10px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);font:600 13px 'Source Sans 3',sans-serif;cursor:pointer}
+.pay-btn.on{border-color:var(--accent);background:color-mix(in srgb,var(--accent) 12%,var(--surface));color:var(--accent)}
+.caja-ventas-link{font:600 12.5px 'Source Sans 3',sans-serif;color:var(--accent);background:none;border:1px solid var(--line);border-radius:999px;padding:7px 12px;cursor:pointer}
+</style>
 <meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style><link rel="icon" type="image/png" href="DATAURI"><title>Order SISLAND · Demo — Tacos El Buen Sazón</title><meta name="description" content="Demo de Order SISLAND: menú digital con pedido desde la mesa, pantalla de cocina y caja en tiempo real."></head><body>
 <style>
 /* Layout: single-column mobile menu — sticky category rail up top, scrolling dish list,
@@ -1108,6 +1147,8 @@ function CajaApp(){
   var selectedMesa = null;
   var chargeBusy = false;
   var confirmingCharge = false;
+  var payMethod = "efectivo";
+  function setPay(m){ payMethod = m; render(); }
 
   function readLocal(key){
     try{ return localStorage.getItem(key); }catch(e){ return null; }
@@ -1198,7 +1239,7 @@ function CajaApp(){
     render();
   }
 
-  function askCharge(){
+  function askCharge(){ payMethod = "efectivo";
     confirmingCharge = true;
     render();
   }
@@ -1212,12 +1253,12 @@ function CajaApp(){
     if (!db || chargeBusy) return;
     var list = orders.filter(function(o){ return String(o.mesa) === String(mesa); });
     if (!list.length) return;
-    slTrack("cobrar_mesa",{value:list.reduce(function(s,o){return s+(o.total||0);},0),currency:"MXN"});
+    slTrack("cobrar_mesa",{value:list.reduce(function(s,o){return s+(o.total||0);},0),currency:"MXN",pago:payMethod});
     confirmingCharge = false;
     chargeBusy = true;
     render();
     Promise.all(list.map(function(o){
-      return db.doc("orders/" + o.id).update({ status: "cobrado" }).catch(function(){});
+      return db.doc("orders/" + o.id).update({ status: "cobrado", cobradoAt: new Date().toISOString(), pago: payMethod }).catch(function(){});
     })).then(function(){
       chargeBusy = false;
       selectedMesa = null;
@@ -1280,7 +1321,8 @@ function CajaApp(){
         } else if (confirmingCharge){
           actionHtml =
             '<div class="caja-confirm">'
-              + '<div class="caja-confirm-text">¿Confirmas que la mesa '+selectedMesa+' ya pagó '+fmt(grand)+'? Esto cerrará su cuenta.</div>'
+              + '<div class="caja-confirm-text">¿Cómo pagó la mesa '+selectedMesa+'? Total: <b>'+fmt(grand)+'</b>. Al confirmar se cerrará su cuenta.</div>'
+              + '<div class="pay-row">'+[["efectivo","Efectivo"],["tarjeta","Tarjeta"],["transferencia","Transferencia"]].map(function(p){ return "<button class=\"pay-btn"+(payMethod===p[0]?" on":"")+"\" onclick=\"App.setPay('"+p[0]+"')\">"+p[1]+"</button>"; }).join("")+'</div>'
               + '<div class="caja-confirm-row">'
                 + '<button class="caja-btn-ghost" onclick="App.cancelCharge()">Cancelar</button>'
                 + "<button class=\"send-btn\" onclick='App.chargeMesa("+JSON.stringify(selectedMesa)+")'>Sí, ya pagó</button>"
@@ -1304,6 +1346,7 @@ function CajaApp(){
         + '<div><div class="k-title font-display">Caja &middot; '+RESTAURANT+'</div><div class="k-sub">Cuentas abiertas por mesa</div></div>'
         + '<div style="display:flex;align-items:center;gap:14px;">'
           + '<div class="k-live">'+(db ? '🟢 En vivo' : (loaded ? '⚪ Sin conexión' : '… conectando'))+'</div>'
+          + '<button class="caja-ventas-link" onclick="location.hash=\'#ventas\'">Ventas y corte →</button>'
           + '<button class="k-lock-btn" onclick="App.lockScreen()" title="Bloquear pantalla">🔒</button>'
         + '</div>'
       + '</div>'
@@ -1342,6 +1385,7 @@ function CajaApp(){
   }
 
   window.App = {
+    setPay: setPay,
     submitPin: submitPin, lockScreen: lockScreen, searchMesa: searchMesa,
     selectMesa: selectMesa, clearSelection: clearSelection, chargeMesa: chargeMesa,
     askCharge: askCharge, cancelCharge: cancelCharge
@@ -1542,6 +1586,240 @@ function AdminApp(){
   render();
 }
 
+// ============================================================
+//  VENTAS Y CORTE DE CAJA  (#ventas) — acceso con PIN de admin
+//  Historial de cuentas cobradas por día/rango, desglose por
+//  forma de pago, mesero, platillo y hora; corte de caja con
+//  efectivo contado vs. esperado; exportación a CSV (Excel).
+// ============================================================
+function VentasApp(){
+  var RESTAURANT = "Tacos El Buen Sazón";
+  var db = null, cfg = null, loaded = false;
+  var orders = [], cortes = [];
+  var unsubO = null, unsubC = null;
+  var pinError = "";
+  function readLocal(key){ try{ return localStorage.getItem(key); }catch(e){ return null; } }
+  function writeLocal(key, val){ try{ localStorage.setItem(key, val); }catch(e){} }
+  function currentPin(){ return (cfg && cfg.pins && cfg.pins.admin) || DEFAULT_PINS.admin; }
+  var locked = readLocal("sl_admin_unlocked") !== currentPin();
+  function esc(t){ return String(t==null?"":t).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+  function fmt(n){ var v=Math.round((n||0)*100)/100; return "$" + v.toLocaleString("es-MX",{minimumFractionDigits: v%1?2:0, maximumFractionDigits:2}); }
+  function pad(n){ return (n<10?"0":"")+n; }
+  function dayKey(d){ return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate()); }
+  function parseDay(k){ var p=k.split("-"); return new Date(+p[0], +p[1]-1, +p[2]); }
+  function addDays(k, n){ var d=parseDay(k); d.setDate(d.getDate()+n); return dayKey(d); }
+  function niceDay(k){ var d=parseDay(k); return d.toLocaleDateString("es-MX",{weekday:"long", day:"numeric", month:"long"}); }
+  function hhmm(iso){ var d=new Date(iso); return isNaN(d) ? "—" : pad(d.getHours())+":"+pad(d.getMinutes()); }
+  var PAGO_LABEL = { efectivo:"Efectivo", tarjeta:"Tarjeta", transferencia:"Transferencia", "":"Sin especificar" };
+
+  var today = dayKey(new Date());
+  var from = today, to = today;
+  var corte = { fondo:"", contado:"", responsable:"", saving:false, msg:"", kind:"" };
+
+  function submitPin(){
+    var el = document.getElementById("pin-input");
+    var val = el ? el.value.trim() : "";
+    if (val === currentPin()){
+      writeLocal("sl_admin_unlocked", currentPin());
+      if (typeof slTrack === "function") slTrack("desbloquear_pantalla",{pantalla:"ventas"});
+      locked = false; pinError = ""; startWatch(); render();
+    } else { pinError = "PIN incorrecto. Intenta de nuevo."; render(); }
+  }
+  function lockScreen(){ locked = true; stopWatch(); render(); }
+
+  function startWatch(){
+    if (!db) return;
+    stopWatch();
+    unsubO = db.collection("orders").orderBy("createdAt","asc").limit(5000).onSnapshot(function(snap){
+      orders = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
+      render();
+    }, function(){});
+    unsubC = db.collection("cortes").orderBy("createdAt","desc").limit(500).onSnapshot(function(snap){
+      cortes = snap.docs.map(function(d){ return Object.assign({ id: d.id }, d.data()); });
+      render();
+    }, function(){});
+  }
+  function stopWatch(){ if (unsubO){ unsubO(); unsubO=null; } if (unsubC){ unsubC(); unsubC=null; } }
+
+  // ---- data ----
+  function paidAt(o){ return o.cobradoAt || o.createdAt; }
+  function inRange(iso){ var d=new Date(iso); if (isNaN(d)) return false; var k=dayKey(d); return k>=from && k<=to; }
+  function sales(){ return orders.filter(function(o){ return o.status === "cobrado" && inRange(paidAt(o)); }).sort(function(a,b){ return paidAt(a) < paidAt(b) ? -1 : 1; }); }
+  function openNow(){ return orders.filter(function(o){ return o.status !== "cobrado"; }); }
+  function summary(list){
+    var s = { total:0, n:list.length, pago:{}, mesero:{}, platillo:{}, hora:{} };
+    list.forEach(function(o){
+      var t = o.total||0; s.total += t;
+      var p = o.pago || ""; s.pago[p] = (s.pago[p]||0) + t;
+      var m = o.mesero || "—"; s.mesero[m] = s.mesero[m] || { total:0, n:0 }; s.mesero[m].total += t; s.mesero[m].n++;
+      (o.items||[]).forEach(function(it){ var k=it.name; s.platillo[k] = s.platillo[k] || { qty:0, total:0 }; s.platillo[k].qty += it.qty; s.platillo[k].total += it.qty*it.price; });
+      var h = new Date(paidAt(o)).getHours(); s.hora[h] = (s.hora[h]||0) + t;
+    });
+    return s;
+  }
+
+  // ---- actions ----
+  function setRange(a, b){ from = a; to = b || a; corte.msg = ""; render(); }
+  function quick(kind){
+    if (kind === "hoy") setRange(today);
+    else if (kind === "ayer") setRange(addDays(today,-1));
+    else if (kind === "7") setRange(addDays(today,-6), today);
+    else if (kind === "mes"){ var d=parseDay(today); setRange(dayKey(new Date(d.getFullYear(), d.getMonth(), 1)), today); }
+  }
+  function onDate(which, val){ if (!val) return; if (which==="from"){ from=val; if (to<from) to=from; } else { to=val; if (from>to) from=to; } corte.msg=""; render(); }
+  function setField(k, v){ corte[k] = v; paintCorte(); }
+
+  function cashExpected(list){ return list.filter(function(o){ return (o.pago||"") === "efectivo"; }).reduce(function(s,o){ return s+(o.total||0); },0); }
+  function saveCorte(){
+    if (corte.saving || from !== to) return;
+    var list = sales();
+    var fondo = Number(corte.fondo||0), contado = Number(corte.contado);
+    if (corte.contado === "" || !isFinite(contado)){ corte.msg="Escribe el efectivo que contaste en caja."; corte.kind="err"; render(); return; }
+    if (!isFinite(fondo) || fondo < 0){ corte.msg="El fondo inicial no es válido."; corte.kind="err"; render(); return; }
+    var s = summary(list), esperado = fondo + cashExpected(list);
+    corte.saving = true; render();
+    db.collection("cortes").add({
+      dia: from, createdAt: new Date().toISOString(), responsable: (corte.responsable||"").trim() || "Sin nombre",
+      fondo: fondo, efectivoVentas: cashExpected(list), esperado: esperado, contado: contado, diferencia: contado - esperado,
+      totalVentas: s.total, cuentas: s.n, porPago: s.pago
+    }).then(function(){
+      if (typeof slTrack === "function") slTrack("guardar_corte",{value:s.total,currency:"MXN"});
+      corte = { fondo:"", contado:"", responsable:corte.responsable, saving:false, msg:"Corte guardado. Puedes consultarlo cuando quieras en este mismo día.", kind:"ok" };
+      render();
+    }).catch(function(){ corte.saving=false; corte.msg="No se pudo guardar el corte. Inténtalo de nuevo."; corte.kind="err"; render(); });
+  }
+  function exportCSV(){
+    var list = sales();
+    var rows = [["Fecha","Hora de cobro","Folio","Mesa","Mesero","Forma de pago","Platillo","Cantidad","Precio unitario","Importe","Nota del pedido","Total de la cuenta"]];
+    list.forEach(function(o){
+      var d = new Date(paidAt(o));
+      (o.items||[]).forEach(function(it, i){
+        rows.push([dayKey(d), hhmm(paidAt(o)), "#"+o.id.slice(-4).toUpperCase(), o.mesa, o.mesero||"", PAGO_LABEL[o.pago||""], it.name+(it.note?" ("+it.note+")":""), it.qty, it.price, it.qty*it.price, i===0?(o.nota||""):"", i===0?(o.total||0):""]);
+      });
+    });
+    var csv = "﻿" + rows.map(function(r){ return r.map(function(c){ c=String(c==null?"":c); return /[",\n;]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c; }).join(","); }).join("\r\n");
+    var blob = new Blob([csv], { type:"text/csv;charset=utf-8" });
+    var a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+    a.download = "ventas_" + (from===to ? from : from+"_a_"+to) + ".csv";
+    document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    if (typeof slTrack === "function") slTrack("exportar_ventas",{dias: from===to?1:2});
+  }
+
+  // ---- view ----
+  function paintCorte(){
+    var el = document.getElementById("v-corte-calc"); if (!el) return;
+    el.innerHTML = corteCalcHtml(sales());
+  }
+  function corteCalcHtml(list){
+    var fondo = Number(corte.fondo||0); var ventasEf = cashExpected(list); var esperado = (isFinite(fondo)?fondo:0) + ventasEf;
+    var hasC = corte.contado !== "" && isFinite(Number(corte.contado)); var dif = hasC ? Number(corte.contado) - esperado : null;
+    return '<div class="v-row"><span>Fondo inicial</span><b>'+fmt(isFinite(fondo)?fondo:0)+'</b></div>'
+      + '<div class="v-row"><span>Ventas en efectivo</span><b>'+fmt(ventasEf)+'</b></div>'
+      + '<div class="v-row v-strong"><span>Efectivo esperado en caja</span><b>'+fmt(esperado)+'</b></div>'
+      + (hasC ? '<div class="v-row v-strong"><span>Diferencia</span><b class="'+(Math.abs(dif)<0.005?'v-ok':(dif>0?'v-plus':'v-minus'))+'">'+(Math.abs(dif)<0.005?'Cuadra exacto':(dif>0?'Sobran ':'Faltan ')+fmt(Math.abs(dif)))+'</b></div>' : '');
+  }
+  function render(){
+    var app = document.getElementById("app");
+    if (locked){
+      app.innerHTML =
+        '<div class="k-lock-wrap"><div class="k-lock-card">'
+          + '<div class="k-lock-icon">📊</div><h2 class="font-display">Ventas y corte de caja</h2>'
+          + '<div class="k-lock-sub">'+RESTAURANT+' &middot; acceso solo para gerencia</div>'
+          + (window.OrderSislandDemo && currentPin() === DEFAULT_PINS.admin ? '<div class="k-lock-sub" style="margin-top:-12px">PIN de demostración: <b>'+currentPin()+'</b></div>' : '')
+          + (pinError ? '<div class="onboard-err" style="display:block;">'+pinError+'</div>' : '')
+          + '<input id="pin-input" class="k-pin-input" type="password" inputmode="numeric" maxlength="4" placeholder="····" onkeydown="if(event.key===\'Enter\')App.submitPin()">'
+          + '<button class="onboard-go" onclick="App.submitPin()">Entrar</button>'
+        + '</div></div>';
+      return;
+    }
+    var list = sales(), s = summary(list), single = from === to;
+    var avg = s.n ? s.total / s.n : 0;
+    var open = openNow(); var openTotal = open.reduce(function(a,o){ return a+(o.total||0); },0);
+    var rangeLabel = single ? niceDay(from) : (niceDay(from) + " — " + niceDay(to)); rangeLabel = rangeLabel.charAt(0).toUpperCase() + rangeLabel.slice(1);
+    var isQ = function(k){ return (k==="hoy"&&single&&from===today)||(k==="ayer"&&single&&from===addDays(today,-1))||(k==="7"&&from===addDays(today,-6)&&to===today); };
+
+    var pagoHtml = ["efectivo","tarjeta","transferencia",""].filter(function(p){ return s.pago[p] || p!==""; }).map(function(p){
+      var v = s.pago[p]||0; var pct = s.total ? Math.round(v*100/s.total) : 0;
+      return '<div class="v-bar-row"><span class="v-bar-lbl">'+PAGO_LABEL[p]+'</span><div class="v-bar"><i style="width:'+pct+'%"></i></div><b>'+fmt(v)+'</b></div>';
+    }).join("");
+    var meseros = Object.keys(s.mesero).sort(function(a,b){ return s.mesero[b].total - s.mesero[a].total; });
+    var meseroHtml = meseros.length ? meseros.map(function(m){ return '<div class="v-row"><span>'+esc(m)+' <small>· '+s.mesero[m].n+' cuenta'+(s.mesero[m].n===1?'':'s')+'</small></span><b>'+fmt(s.mesero[m].total)+'</b></div>'; }).join("") : '<div class="k-empty">Sin ventas en este periodo</div>';
+    var plat = Object.keys(s.platillo).sort(function(a,b){ return s.platillo[b].qty - s.platillo[a].qty; }).slice(0,8);
+    var maxQ = plat.length ? s.platillo[plat[0]].qty : 1;
+    var platHtml = plat.length ? plat.map(function(p,i){ return '<div class="v-bar-row"><span class="v-bar-lbl">'+(i+1)+'. '+esc(p)+'</span><div class="v-bar"><i style="width:'+Math.round(s.platillo[p].qty*100/maxQ)+'%"></i></div><b>'+s.platillo[p].qty+'</b></div>'; }).join("") : '<div class="k-empty">Sin ventas en este periodo</div>';
+    var horas = Object.keys(s.hora).map(Number).sort(function(a,b){return a-b;});
+    var maxH = horas.reduce(function(m,h){ return Math.max(m, s.hora[h]); }, 1);
+    var horaHtml = horas.length ? '<div class="v-hours">' + horas.map(function(h){ return '<div class="v-hcol" title="'+fmt(s.hora[h])+'"><div class="v-hbar" style="height:'+Math.max(6,Math.round(s.hora[h]*100/maxH))+'%"></div><span>'+pad(h)+'h</span></div>'; }).join("") + '</div>' : '<div class="k-empty">Sin ventas en este periodo</div>';
+    var MAXL = 60; var shown = list.slice().reverse().slice(0, MAXL);
+    var cuentasHtml = list.length ? shown.map(function(o){
+      var its = (o.items||[]).map(function(it){ return it.qty+'x '+esc(it.name); }).join(", ");
+      return '<div class="v-ticket"><div class="v-ticket-top"><b>Mesa '+esc(o.mesa)+'</b><span>'+(single?'':dayKey(new Date(paidAt(o))).slice(5)+' · ')+hhmm(paidAt(o))+'</span></div>'
+        + '<div class="v-ticket-sub">Folio #'+o.id.slice(-4).toUpperCase()+' · '+esc(o.mesero||"—")+' · '+PAGO_LABEL[o.pago||""]+'</div>'
+        + '<div class="v-ticket-items">'+its+'</div><div class="v-ticket-total">'+fmt(o.total)+'</div></div>';
+    }).join("") + (list.length > MAXL ? '<div class="k-empty">Y '+(list.length-MAXL)+' cuentas más. Descarga el Excel para verlas todas.</div>' : '') : '<div class="k-empty">No hay cuentas cobradas en este periodo.</div>';
+    var cortesDia = cortes.filter(function(c){ return single ? c.dia === from : (c.dia>=from && c.dia<=to); });
+    var cortesHtml = cortesDia.length ? cortesDia.map(function(c){
+      var ok = Math.abs(c.diferencia||0) < 0.005;
+      return '<div class="v-corte-item"><div><b>'+(single?'':c.dia.slice(5)+' · ')+hhmm(c.createdAt)+'</b> · '+esc(c.responsable)+'<div class="v-ticket-sub">Esperado '+fmt(c.esperado)+' · Contado '+fmt(c.contado)+' · Ventas '+fmt(c.totalVentas)+' ('+c.cuentas+' cuentas)</div></div><b class="'+(ok?'v-ok':(c.diferencia>0?'v-plus':'v-minus'))+'">'+(ok?'Cuadra':(c.diferencia>0?'+':'−')+fmt(Math.abs(c.diferencia)))+'</b></div>';
+    }).join("") : '<div class="k-empty">Aún no hay cortes guardados'+(single?' este día':' en este periodo')+'.</div>';
+
+    var corteHtml = single
+      ? '<div class="adm-section"><h3 class="font-display">Corte de caja</h3><div class="adm-help">Compara el efectivo que hay en caja con lo que registró el sistema.</div>'
+          + '<div class="v-form">'
+            + '<label>Fondo inicial<input class="adm-input" inputmode="decimal" placeholder="0" value="'+esc(corte.fondo)+'" oninput="App.setField(\'fondo\',this.value)"></label>'
+            + '<label>Efectivo contado<input class="adm-input" inputmode="decimal" placeholder="¿Cuánto hay en caja?" value="'+esc(corte.contado)+'" oninput="App.setField(\'contado\',this.value)"></label>'
+            + '<label>Responsable<input class="adm-input" placeholder="Nombre" value="'+esc(corte.responsable)+'" oninput="App.setField(\'responsable\',this.value)"></label>'
+          + '</div>'
+          + '<div id="v-corte-calc" class="v-calc">'+corteCalcHtml(list)+'</div>'
+          + (corte.msg ? '<div class="adm-msg '+corte.kind+'" style="margin:10px 0 0">'+esc(corte.msg)+'</div>' : '')
+          + '<button class="send-btn" style="margin-top:14px" onclick="App.saveCorte()"'+(corte.saving?' disabled':'')+'>'+(corte.saving?'Guardando…':'Guardar corte')+'</button>'
+          + '<div class="caja-section-label" style="margin-top:18px">Cortes guardados</div>'+cortesHtml
+        + '</div>'
+      : '<div class="adm-section"><h3 class="font-display">Cortes de caja del periodo</h3>'+cortesHtml+'</div>';
+
+    app.innerHTML =
+      '<div class="k-header"><div><div class="k-title font-display">Ventas y corte &middot; '+RESTAURANT+'</div><div class="k-sub">Historial de cuentas cobradas</div></div>'
+        + '<button class="k-lock-btn" onclick="App.lockScreen()" title="Bloquear">🔒</button></div>'
+      + '<div class="adm-wrap v-wrap">'
+        + '<div class="adm-section">'
+          + '<div class="v-quick">'
+            + ['hoy','ayer','7','mes'].map(function(k){ return '<button class="caja-chip'+(isQ(k)?' active':'')+'" onclick="App.quick(\''+k+'\')">'+({hoy:"Hoy",ayer:"Ayer","7":"Últimos 7 días",mes:"Este mes"})[k]+'</button>'; }).join("")
+          + '</div>'
+          + '<div class="v-dates"><label>Desde<input type="date" class="adm-input" value="'+from+'" max="'+today+'" onchange="App.onDate(\'from\',this.value)"></label>'
+          + '<label>Hasta<input type="date" class="adm-input" value="'+to+'" max="'+today+'" onchange="App.onDate(\'to\',this.value)"></label></div>'
+          + '<div class="v-range">'+rangeLabel+'</div>'
+        + '</div>'
+        + '<div class="v-kpis">'
+          + '<div class="v-kpi"><span>Total vendido</span><b>'+fmt(s.total)+'</b></div>'
+          + '<div class="v-kpi"><span>Cuentas cobradas</span><b>'+s.n+'</b></div>'
+          + '<div class="v-kpi"><span>Ticket promedio</span><b>'+fmt(avg)+'</b></div>'
+          + '<div class="v-kpi v-kpi-open"><span>Por cobrar ahora</span><b>'+fmt(openTotal)+'</b><small>'+open.length+' pedido'+(open.length===1?'':'s')+' abierto'+(open.length===1?'':'s')+'</small></div>'
+        + '</div>'
+        + '<div class="adm-section"><h3 class="font-display">Por forma de pago</h3>'+pagoHtml+'</div>'
+        + corteHtml
+        + '<div class="adm-section"><h3 class="font-display">Platillos más vendidos</h3>'+platHtml+'</div>'
+        + '<div class="adm-section"><h3 class="font-display">Ventas por hora</h3>'+horaHtml+'</div>'
+        + '<div class="adm-section"><h3 class="font-display">Por mesero</h3>'+meseroHtml+'</div>'
+        + '<div class="adm-section"><div class="v-head-row"><h3 class="font-display">Cuentas cobradas</h3><button class="caja-btn" onclick="App.exportCSV()"'+(list.length?'':' disabled style="opacity:.5"')+'>Descargar Excel (CSV)</button></div>'+cuentasHtml+'</div>'
+      + '</div>';
+  }
+
+  if (window.claude && window.claude.use){
+    window.claude.use("db").then(function(d){
+      db = d; loaded = true;
+      cfgStore(db).get().then(function(data){
+        cfg = data;
+        locked = readLocal("sl_admin_unlocked") !== currentPin();
+        if (!locked) startWatch();
+        render();
+      }).catch(function(){ if (!locked) startWatch(); render(); });
+    }).catch(function(){ loaded = true; render(); });
+  } else { loaded = true; }
+
+  window.App = { submitPin: submitPin, lockScreen: lockScreen, quick: quick, onDate: onDate, setField: setField, saveCorte: saveCorte, exportCSV: exportCSV };
+  render();
+}
+
 // Cambiar el "#" en la misma pestaña (p.ej. de #cocina a #caja) no recarga
 // la página por sí solo en los navegadores — forzamos recarga para que
 // siempre se abra la sección correcta.
@@ -1550,5 +1828,6 @@ window.addEventListener("hashchange", function(){ location.reload(); });
 if (location.hash === "#cocina") { CocinaApp(); }
 else if (location.hash === "#caja") { CajaApp(); }
 else if (location.hash === "#admin") { AdminApp(); }
+else if (location.hash === "#ventas") { VentasApp(); }
 else { ClienteApp(); }
 </script>

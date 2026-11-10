@@ -136,13 +136,14 @@
       ".sl-demo button{border:none;background:none;color:#B9AC98;font:inherit;padding:7px 9px;cursor:pointer}";
     document.head.appendChild(css);
     var el = document.createElement("div");
-    el.className = "sl-demo" + (h === "#cocina" || h === "#caja" || h === "#admin" ? " sl-bottom" : "");
+    el.className = "sl-demo" + (h === "#cocina" || h === "#caja" || h === "#admin" || h === "#ventas" ? " sl-bottom" : "");
     el.innerHTML =
       '<span>Demo</span>' +
-      '<a href="#" class="' + (h !== "#cocina" && h !== "#caja" && h !== "#admin" ? "on" : "") + '" target="_self">Menú</a>' +
+      '<a href="#" class="' + (h !== "#cocina" && h !== "#caja" && h !== "#admin" && h !== "#ventas" ? "on" : "") + '" target="_self">Menú</a>' +
       '<a href="#cocina" class="' + (h === "#cocina" ? "on" : "") + '" target="sl_cocina">Cocina</a>' +
       '<a href="#caja" class="' + (h === "#caja" ? "on" : "") + '" target="sl_caja">Caja</a>' +
       '<a href="#admin" class="' + (h === "#admin" ? "on" : "") + '" target="sl_admin">Admin</a>' +
+      '<a href="#ventas" class="' + (h === "#ventas" ? "on" : "") + '" target="sl_ventas">Ventas</a>' +
       '<button type="button" title="Borrar pedidos de prueba">↺</button>';
     el.querySelector("button").onclick = function () {
       if (confirm("¿Borrar todos los pedidos de prueba?")) window.OrderSislandDemo.reset();
